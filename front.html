@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SliceHub — Pizza, Drinks & Breads</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#E8272A; --red-dark:#C01F22; --orange:#FF6B2B;
+  --cream:#FFF8F0; --dark:#1A0A00; --dark2:#2D1A0E;
+  --text:#3D2010; --muted:#8A6A55; --white:#fff;
+  --border:#F0DDD0; --success:#2E7D32;
+  --r:16px; --r-sm:8px;
+  --shadow:0 8px 32px rgba(26,10,0,.13);
+  --fd:'Playfair Display',serif; --fb:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--cream);color:var(--text);overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{font-family:var(--fb);cursor:pointer}
+select,input{font-family:var(--fb)}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--cream)}
+::-webkit-scrollbar-thumb{background:var(--red);border-radius:4px}
+
+/* NAVBAR */
+.nav{
+  position:sticky;top:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 44px;
+  background:var(--white);
+  border-bottom:2px solid var(--border);
+  box-shadow:0 2px 14px rgba(0,0,0,.05);
+}
+.nav-brand{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--fd);font-size:1.5rem;font-weight:900;
+  color:var(--red);cursor:pointer;user-select:none;
+}
+.nav-links{display:flex;align-items:center;gap:26px}
+.nav-link{
+  font-size:.9rem;font-weight:500;color:var(--text);
+  background:none;border:none;border-bottom:2px solid transparent;
+  padding-bottom:2px;transition:all .2s;
+}
+.nav-link:hover,.nav-link.active{color:var(--red);border-bottom-color:var(--red)}
+.cart-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--red);color:#fff;
+  font-size:.62rem;font-weight:700;border-radius:50%;
+  width:17px;height:17px;margin-left:3px;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.cart-badge.bump{transform:scale(1.5)}
+.nav-user-btn{
+  background:var(--red);color:#fff;
+  padding:8px 20px;border-radius:50px;
+  font-size:.85rem;font-weight:600;border:none;
+  transition:all .2s;
+}
+.nav-user-btn:hover{background:var(--red-dark);transform:translateY(-1px)}
+
+/* HERO */
+.hero{
+  min-height:91vh;display:flex;align-items:center;
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#1A0A00 0%,#3D1A08 55%,#7B2D14 100%);
+}
+.hero-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 65% 50%,rgba(232,39,42,.22),transparent 65%);
+}
+.hero-content{position:relative;z-index:2;padding:80px 80px}
+.hero-tag{
+  display:inline-block;font-size:.72rem;letter-spacing:3.5px;
+  text-transform:uppercase;color:var(--orange);font-weight:600;margin-bottom:18px;
+}
+.hero-title{
+  font-family:var(--fd);font-size:clamp(2.8rem,6vw,5.4rem);
+  font-weight:900;line-height:1.04;color:#fff;margin-bottom:22px;
+}
+.hero-title em{color:var(--orange);font-style:normal}
+.hero-sub{
+  font-size:1.05rem;color:rgba(255,255,255,.62);
+  margin-bottom:40px;max-width:400px;line-height:1.65;
+}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+.btn-hero-primary{
+  background:var(--red);color:#fff;
+  padding:14px 38px;border-radius:50px;
+  font-size:.95rem;font-weight:600;border:none;
+  box-shadow:0 6px 24px rgba(232,39,42,.42);
+  transition:all .25s;
+}
+.btn-hero-primary:hover{background:var(--orange);transform:translateY(-2px);box-shadow:0 10px 32px rgba(255,107,43,.42)}
+.btn-hero-ghost{
+  border:2px solid rgba(255,255,255,.3);color:#fff;
+  padding:14px 38px;border-radius:50px;
+  font-size:.95rem;font-weight:600;background:transparent;
+  transition:all .25s;
+}
+.btn-hero-ghost:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+.hero-visual{
+  position:absolute;right:0;top:0;bottom:0;
+  width:48%;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.hero-ring{
+  width:490px;height:490px;border-radius:50%;
+  background:radial-gradient(circle,rgba(232,39,42,.13),transparent 70%);
+  border:1px solid rgba(255,255,255,.07);
+  animation:ringPulse 4s ease-in-out infinite;
+}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.07);opacity:1}}
+.float-card{
+  position:absolute;
+  background:rgba(255,255,255,.09);backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:var(--r);padding:18px 26px;
+  text-align:center;color:#fff;font-size:2.3rem;
+  box-shadow:0 8px 28px rgba(0,0,0,.3);
+  animation:floatY 3s ease-in-out infinite;
+}
+.float-card small{display:block;font-size:.68rem;font-family:var(--fb);margin-top:4px;opacity:.75}
+.fc1{top:22%;right:32%;animation-delay:0s}
+.fc2{top:52%;right:8%;animation-delay:1.1s}
+.fc3{bottom:20%;right:37%;animation-delay:2.2s}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-13px)}}
+
+/* COMMON */
+.section{padding:72px 0}
+.container{max-width:1160px;margin:0 auto;padding:0 28px}
+.section-title{
+  font-family:var(--fd);font-size:2rem;font-weight:700;
+  color:var(--dark);margin-bottom:36px;text-align:center;
+}
+
+/* CATEGORIES */
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.cat-card{
+  background:#fff;border:2px solid var(--border);
+  border-radius:var(--r);padding:38px 20px;
+  text-align:center;transition:all .25s;cursor:pointer;
+}
+.cat-card:hover{border-color:var(--red);transform:translateY(-5px);box-shadow:var(--shadow)}
+.cat-card.hl{background:var(--red);border-color:var(--red)}
+.cat-card.hl h3,.cat-card.hl p{color:#fff}
+.cat-emoji{font-size:2.8rem;margin-bottom:13px}
+.cat-card h3{font-family:var(--fd);font-size:1.15rem;margin-bottom:5px}
+.cat-card p{color:var(--muted);font-size:.84rem}
+.cat-card.hl p{color:rgba(255,255,255,.8)}
+
+/* FEATURES */
+.feat-bar{background:var(--dark);padding:60px 0}
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.feat-item{text-align:center}
+.feat-icon{font-size:2.2rem;display:block;margin-bottom:12px}
+.feat-item h4{color:#fff;font-size:1rem;font-weight:600;margin-bottom:6px}
+.feat-item p{color:rgba(255,255,255,.42);font-size:.83rem;line-height:1.5}
+
+/* PAGE HEADER */
+.page-hdr{
+  background:linear-gradient(135deg,var(--dark),var(--dark2));
+  padding:52px 40px;color:#fff;text-align:center;
+}
+.page-hdr h1{font-family:var(--fd);font-size:2.6rem;margin-bottom:10px}
+.page-hdr p{color:rgba(255,255,255,.5);font-size:.93rem}
+
+/* MENU */
+.menu-wrap{padding:44px 0 80px}
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.f-btn{
+  padding:9px 22px;border-radius:50px;
+  border:2px solid var(--border);background:#fff;
+  color:var(--text);font-size:.87rem;font-weight:600;
+  transition:all .2s;
+}
+.f-btn:hover,.f-btn.active{background:var(--red);border-color:var(--red);color:#fff}
+.search-row{margin-bottom:36px}
+.search-input{
+  padding:11px 20px;border:2px solid var(--border);
+  border-radius:50px;font-family:var(--fb);font-size:.9rem;
+  color:var(--text);outline:none;transition:border-color .2s;
+  background:#fff;width:100%;max-width:380px;
+}
+.search-input:focus{border-color:var(--red)}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:22px}
+.prod-card{
+  background:#fff;border:2px solid var(--border);
+  border-radius:var(--r);overflow:hidden;
+  transition:all .25s;display:flex;flex-direction:column;
+}
+.prod-card:hover{box-shadow:var(--shadow);transform:translateY(-4px);border-color:var(--red)}
+.prod-emoji-wrap{
+  font-size:3.8rem;background:var(--cream);
+  text-align:center;padding:30px 0;
+}
+.prod-body{padding:18px;flex:1;display:flex;flex-direction:column}
+.prod-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.prod-top h3{font-family:var(--fd);font-size:1.03rem}
+.prod-desc{color:var(--muted);font-size:.83rem;line-height:1.5;flex:1;margin-bottom:14px}
+.prod-foot{display:flex;align-items:center;justify-content:space-between}
+.prod-price{font-size:1.15rem;font-weight:700;color:var(--red)}
+.add-btn{
+  background:var(--red);color:#fff;border:none;
+  padding:8px 18px;border-radius:50px;
+  font-size:.83rem;font-weight:600;transition:all .2s;
+}
+.add-btn:hover{background:var(--red-dark);transform:scale(1.05)}
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:50px;
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+}
+.badge-red{background:rgba(232,39,42,.1);color:var(--red)}
+.badge-green{background:rgba(46,125,50,.1);color:var(--success)}
+.no-res{text-align:center;color:var(--muted);padding:60px 0;grid-column:1/-1}
+
+.packaging-row{margin-bottom:12px}
+.packaging-select{
+  width:100%;
+  padding:10px 12px;
+  border:2px solid var(--border);
+  border-radius:10px;
+  font-size:.85rem;
+  background:#fff;
+  color:var(--text);
+  outline:none;
+}
+.packaging-select:focus{border-color:var(--red)}
+
+.qty-add-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:10px;
+}
+.qty-picker{
+  display:flex;align-items:center;gap:10px;
+  background:var(--cream);border-radius:50px;padding:4px 8px;
+}
+.qty-btn{
+  width:26px;height:26px;border-radius:50%;border:none;
+  background:#fff;font-size:.95rem;font-weight:700;
+  box-shadow:0 2px 6px rgba(0,0,0,.1);transition:all .15s;
+}
+.qty-btn:hover{background:var(--red);color:#fff}
+.qty-num{font-weight:700;min-width:20px;text-align:center;font-size:.9rem}
+
+/* CART */
+.cart-wrap{padding:44px 0 80px}
+.cart-layout{display:grid;grid-template-columns:1fr 360px;gap:36px;align-items:start}
+.cart-item{
+  background:#fff;border:2px solid var(--border);
+  border-radius:var(--r);padding:18px 20px;margin-bottom:14px;
+  display:flex;align-items:center;gap:14px;transition:border-color .2s;
+}
+.cart-item:hover{border-color:var(--red)}
+.ci-em{font-size:2.2rem;width:46px;text-align:center}
+.ci-info{flex:1}
+.ci-info h4{font-family:var(--fd);font-size:.96rem;margin-bottom:3px}
+.ci-info p{color:var(--muted);font-size:.79rem}
+.ci-total{font-weight:700;font-size:1rem;color:var(--red);min-width:56px;text-align:right}
+.ci-rm{background:none;border:none;color:var(--muted);font-size:.9rem;padding:4px;transition:color .2s}
+.ci-rm:hover{color:var(--red)}
+.empty-cart{text-align:center;padding:70px 20px}
+.empty-icon{font-size:4rem;margin-bottom:14px}
+.empty-cart h3{font-family:var(--fd);font-size:1.4rem;margin-bottom:8px}
+.empty-cart p{color:var(--muted);margin-bottom:20px}
+.sum-card{
+  background:#fff;border:2px solid var(--border);
+  border-radius:var(--r);padding:26px;
+  position:sticky;top:80px;
+}
+.sum-card h3{font-family:var(--fd);font-size:1.35rem;margin-bottom:18px}
+.sum-row{display:flex;justify-content:space-between;padding:9px 0;font-size:.91rem}
+.sum-divider{border:none;border-top:2px solid var(--border);margin:8px 0}
+.sum-total{font-size:1.15rem;font-weight:700;color:var(--red)}
+.coupon-wrap{margin:18px 0}
+.coupon-label{font-size:.82rem;font-weight:600;margin-bottom:7px}
+.coupon-row{display:flex;gap:8px}
+.coupon-input{
+  flex:1;padding:10px 14px;border:2px solid var(--border);
+  border-radius:var(--r-sm);font-family:var(--fb);font-size:.87rem;
+  outline:none;transition:border-color .2s;
+}
+.coupon-input:focus{border-color:var(--red)}
+.coupon-btn{
+  background:transparent;border:2px solid var(--red);color:var(--red);
+  padding:9px 16px;border-radius:var(--r-sm);font-weight:600;font-size:.83rem;
+  transition:all .2s;
+}
+.coupon-btn:hover{background:var(--red);color:#fff}
+.coupon-msg{font-size:.77rem;margin-top:5px;min-height:16px}
+.checkout-btn{
+  width:100%;padding:15px;background:var(--red);color:#fff;
+  border:none;border-radius:50px;font-size:.95rem;font-weight:600;
+  margin-top:14px;transition:all .2s;
+}
+.checkout-btn:hover{background:var(--red-dark);transform:translateY(-1px)}
+.continue-link{
+  display:block;text-align:center;margin-top:12px;
+  font-size:.82rem;color:var(--muted);background:none;border:none;
+  transition:color .2s;
+}
+.continue-link:hover{color:var(--red)}
+
+/* ORDERS */
+.orders-wrap{padding:44px 0 80px}
+.order-card{
+  background:#fff;border:2px solid var(--border);
+  border-radius:var(--r);padding:22px;margin-bottom:20px;
+  transition:all .25s;
+}
+.order-card:hover{box-shadow:var(--shadow);border-color:var(--red)}
+.order-hdr{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:14px;flex-wrap:wrap;gap:8px;
+}
+.order-id{font-family:var(--fd);font-size:1.05rem;font-weight:700}
+.order-date{color:var(--muted);font-size:.79rem}
+.order-items{
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:10px 0;margin-bottom:14px;
+}
+.order-item-row{display:flex;justify-content:space-between;padding:5px 0;font-size:.87rem}
+.order-item-row span:nth-child(2){color:var(--muted)}
+.order-item-row span:last-child{font-weight:600}
+.order-foot{display:flex;justify-content:space-between;align-items:center}
+.order-total{font-size:.93rem}
+.order-total strong{color:var(--red);font-size:1.1rem}
+.reorder-btn{
+  background:transparent;border:2px solid var(--red);color:var(--red);
+  padding:8px 18px;border-radius:50px;font-size:.83rem;font-weight:600;
+  transition:all .2s;
+}
+.reorder-btn:hover{background:var(--red);color:#fff}
+.empty-orders{text-align:center;padding:70px 20px}
+.empty-orders h3{font-family:var(--fd);font-size:1.4rem;margin-bottom:8px}
+.empty-orders p{color:var(--muted);margin-bottom:20px}
+
+/* AUTH */
+.auth-wrap{
+  min-height:calc(100vh - 66px);
+  display:flex;align-items:center;justify-content:center;
+  padding:40px 20px;
+}
+.auth-card{
+  background:#fff;border:2px solid var(--border);
+  border-radius:var(--r);padding:46px 40px;
+  width:100%;max-width:440px;
+  box-shadow:0 12px 48px rgba(0,0,0,.09);
+}
+.auth-logo{text-align:center;font-size:2.8rem;margin-bottom:10px}
+.auth-card h2{font-family:var(--fd);font-size:1.9rem;text-align:center;margin-bottom:6px}
+.auth-sub{text-align:center;color:var(--muted);font-size:.87rem;margin-bottom:28px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.84rem;font-weight:600;margin-bottom:5px}
+.form-group input{
+  width:100%;padding:11px 15px;
+  border:2px solid var(--border);border-radius:var(--r-sm);
+  font-family:var(--fb);font-size:.9rem;color:var(--text);
+  outline:none;transition:border-color .2s;
+}
+.form-group input:focus{border-color:var(--red)}
+.auth-submit{
+  width:100%;padding:14px;background:var(--red);color:#fff;
+  border:none;border-radius:50px;font-size:.95rem;font-weight:600;
+  margin-top:6px;transition:all .2s;
+}
+.auth-submit:hover{background:var(--red-dark)}
+.auth-switch{text-align:center;margin-top:18px;font-size:.84rem;color:var(--muted)}
+.auth-toggle{background:none;border:none;color:var(--red);font-weight:600;font-size:.84rem}
+.auth-toggle:hover{text-decoration:underline}
+
+/* TOAST */
+.toast-container{
+  position:fixed;bottom:28px;right:28px;z-index:9999;
+  display:flex;flex-direction:column;gap:10px;pointer-events:none;
+}
+.toast{
+  background:var(--dark);color:#fff;
+  padding:12px 22px;border-radius:var(--r-sm);
+  font-size:.87rem;font-weight:500;
+  box-shadow:0 8px 28px rgba(0,0,0,.25);
+  animation:slideUp .35s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--red)}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* FOOTER */
+.footer{background:var(--dark2);padding:36px 0 20px;text-align:center}
+.footer-brand{font-family:var(--fd);font-size:1.3rem;color:#fff;margin-bottom:6px}
+.footer-tagline{font-size:.83rem;color:rgba(255,255,255,.4);margin-bottom:14px}
+.footer-copy{font-size:.76rem;color:rgba(255,255,255,.28)}
+
+/* RESPONSIVE */
+@media(max-width:1000px){
+  .cart-layout{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:repeat(2,1fr);gap:24px}
+}
+@media(max-width:768px){
+  .nav{padding:13px 18px}
+  .nav-links{gap:14px}
+  .hero-content{padding:52px 22px}
+  .hero-visual{display:none}
+  .hero-title{font-size:2.8rem}
+  .cat-grid{grid-template-columns:repeat(2,1fr)}
+  .page-hdr h1{font-size:2rem}
+  .page-hdr{padding:40px 20px}
+}
+@media(max-width:520px){
+  .nav-links{gap:10px}
+  .nav-link{font-size:.82rem}
+  .cat-grid{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:1fr}
+  .hero-title{font-size:2.2rem}
+  .auth-card{padding:32px 22px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const PRODUCTS = [
+  { id:'p1', name:'Margherita', cat:'pizza', basePrice:249, desc:'Classic tomato, fresh mozzarella & fragrant basil', emoji:'🍕', tag:'Bestseller', packaging:[{label:'Small', price:249},{label:'Medium', price:349},{label:'Large', price:449}] },
+  { id:'p2', name:'Pepperoni Feast', cat:'pizza', basePrice:349, desc:'Double-loaded crispy pepperoni on rich tomato base', emoji:'🍕', tag:'Spicy', packaging:[{label:'Small', price:349},{label:'Medium', price:449},{label:'Large', price:549}] },
+  { id:'p3', name:'BBQ Chicken', cat:'pizza', basePrice:379, desc:'Smoky BBQ sauce, grilled chicken & caramelised onion', emoji:'🍕', tag:'', packaging:[{label:'Small', price:379},{label:'Medium', price:479},{label:'Large', price:579}] },
+  { id:'p4', name:'Veggie Supreme', cat:'pizza', basePrice:299, desc:'Bell peppers, olives, mushrooms & sweet red onion', emoji:'🍕', tag:'Veg', packaging:[{label:'Small', price:299},{label:'Medium', price:399},{label:'Large', price:499}] },
+  { id:'p5', name:'Paneer Tikka', cat:'pizza', basePrice:329, desc:'Spiced paneer, vibrant peppers & tangy tikka sauce', emoji:'🍕', tag:'Veg', packaging:[{label:'Small', price:329},{label:'Medium', price:429},{label:'Large', price:529}] },
+  { id:'p6', name:'Four Cheese', cat:'pizza', basePrice:399, desc:'Mozzarella, cheddar, gouda & aged parmesan', emoji:'🍕', tag:'Premium', packaging:[{label:'Small', price:399},{label:'Medium', price:499},{label:'Large', price:599}] },
+
+  { id:'d1', name:'Pepsi', cat:'drinks', basePrice:60, desc:'330ml chilled can — the classic cola', emoji:'🥤', tag:'', packaging:[{label:'330ml', price:60},{label:'500ml', price:85},{label:'1L', price:120}] },
+  { id:'d2', name:'Coca-Cola', cat:'drinks', basePrice:60, desc:'330ml ice-cold original formula', emoji:'🥤', tag:'', packaging:[{label:'330ml', price:60},{label:'500ml', price:85},{label:'1L', price:120}] },
+  { id:'d3', name:'Sprite', cat:'drinks', basePrice:60, desc:'330ml crisp lemon-lime sparkle', emoji:'🥤', tag:'', packaging:[{label:'330ml', price:60},{label:'500ml', price:85},{label:'1L', price:120}] },
+  { id:'d4', name:'Mango Juice', cat:'drinks', basePrice:79, desc:'Fresh pressed Alphonso mango, 250ml', emoji:'🧃', tag:'Fresh', packaging:[{label:'250ml', price:79},{label:'500ml', price:129},{label:'1L', price:199}] },
+  { id:'d5', name:'Lemon Iced Tea', cat:'drinks', basePrice:89, desc:'Cold brew black tea with lemon, 300ml', emoji:'🍋', tag:'', packaging:[{label:'300ml', price:89},{label:'500ml', price:129},{label:'1L', price:209}] },
+  { id:'d6', name:'Virgin Mojito', cat:'drinks', basePrice:99, desc:'Mint, lime & soda — refreshingly light', emoji:'🍹', tag:'New', packaging:[{label:'300ml', price:99},{label:'500ml', price:149},{label:'1L', price:229}] },
+
+  { id:'b1', name:'Garlic Bread', cat:'breads', basePrice:99, desc:'6 golden pcs smothered in herb garlic butter', emoji:'🍞', tag:'Bestseller', packaging:[{label:'Regular', price:99},{label:'Family Pack', price:179}] },
+  { id:'b2', name:'Cheese Garlic Bread', cat:'breads', basePrice:129, desc:'6 pcs with stretchy mozzarella pull', emoji:'🧀', tag:'', packaging:[{label:'Regular', price:129},{label:'Family Pack', price:219}] },
+  { id:'b3', name:'Herb Focaccia', cat:'breads', basePrice:119, desc:'Rosemary, extra virgin olive oil & sea salt', emoji:'🍞', tag:'Premium', packaging:[{label:'Regular', price:119},{label:'Family Pack', price:199}] },
+  { id:'b4', name:'Stuffed Breadsticks', cat:'breads', basePrice:149, desc:'4 crispy sticks oozing with cheese', emoji:'🥖', tag:'', packaging:[{label:'Regular', price:149},{label:'Family Pack', price:249}] },
+];
+
+const COUPONS = { SAVE50: 50, WELCOME20: 20, FEAST100: 100 };
+
+const STATIC_ORDERS = [
+  {
+    id:'ORD1743000001',
+    items:[
+      { id:'p1', name:'Margherita', emoji:'🍕', price:349, qty:2, packaging:'Medium', cartKey:'p1-Medium' },
+      { id:'b1', name:'Garlic Bread', emoji:'🍞', price:99, qty:1, packaging:'Regular', cartKey:'b1-Regular' },
+    ],
+    total:797,
+    status:'Delivered',
+    date:'31 Mar 2026, 10:22 AM',
+  },
+  {
+    id:'ORD1743000002',
+    items:[
+      { id:'p2', name:'Pepperoni Feast', emoji:'🍕', price:549, qty:1, packaging:'Large', cartKey:'p2-Large' },
+      { id:'d1', name:'Pepsi', emoji:'🥤', price:85, qty:2, packaging:'500ml', cartKey:'d1-500ml' },
+    ],
+    total:719,
+    status:'Delivered',
+    date:'30 Mar 2026, 7:45 PM',
+  },
+];
+
+function ToastContainer({ toasts }) {
+  return (
+    <div className="toast-container">
+      {toasts.map(t => (
+        <div key={t.id} className={`toast ${t.type}`}>{t.msg}</div>
+      ))}
+    </div>
+  );
+}
+
+function Navbar({ page, setPage, cartCount, user, logout }) {
+  const [bumped, setBumped] = useState(false);
+
+  useEffect(() => {
+    if (cartCount === 0) return;
+    setBumped(true);
+    const t = setTimeout(() => setBumped(false), 400);
+    return () => clearTimeout(t);
+  }, [cartCount]);
+
+  return (
+    <nav className="nav">
+      <div className="nav-brand" onClick={() => setPage('home')}>
+        🍕 SliceHub
+      </div>
+      <div className="nav-links">
+        {[['home','Home'],['menu','Menu'],['orders','Orders']].map(([p,l]) => (
+          <button key={p} className={`nav-link ${page===p?'active':''}`} onClick={() => setPage(p)}>{l}</button>
+        ))}
+        <button className={`nav-link ${page==='cart'?'active':''}`} onClick={() => setPage('cart')}>
+          Cart <span className={`cart-badge ${bumped?'bump':''}`}>{cartCount}</span>
+        </button>
+        {user
+          ? <button className="nav-user-btn" onClick={logout}>{user.name.split(' ')[0]} ✕</button>
+          : <button className="nav-user-btn" onClick={() => setPage('login')}>Login</button>
+        }
+      </div>
+    </nav>
+  );
+}
+
+function Home({ setPage }) {
+  return (
+    <>
+      <div className="hero">
+        <div className="hero-glow" />
+        <div className="hero-content">
+          <p className="hero-tag">Fresh · Fast · Delicious</p>
+          <h1 className="hero-title">
+            Pizza, Drinks<br />&amp; Breads<br /><em>Delivered.</em>
+          </h1>
+          <p className="hero-sub">
+            Browse our menu, build your order and get it at your door — all in minutes.
+          </p>
+          <div className="hero-actions">
+            <button className="btn-hero-primary" onClick={() => setPage('menu')}>Order Now</button>
+            <button className="btn-hero-ghost" onClick={() => setPage('menu')}>View Menu</button>
+          </div>
+        </div>
+        <div className="hero-visual">
+          <div className="hero-ring" />
+          <div className="float-card fc1">🍕<small>Margherita</small></div>
+          <div className="float-card fc2">🥤<small>Cold Drinks</small></div>
+          <div className="float-card fc3">🍞<small>Garlic Bread</small></div>
+        </div>
+      </div>
+
+      <section className="section">
+        <div className="container">
+          <h2 className="section-title">Browse by Category</h2>
+          <div className="cat-grid">
+            {[
+              { emoji:'🍕', label:'Pizzas', sub:'6 varieties', cat:'pizza' },
+              { emoji:'🥤', label:'Cold Drinks', sub:'6 varieties', cat:'drinks' },
+              { emoji:'🍞', label:'Breads', sub:'4 varieties', cat:'breads' },
+              { emoji:'🎉', label:'Combos', sub:'Save more!', cat:'all', hl:true },
+            ].map(c => (
+              <div key={c.label} className={`cat-card ${c.hl?'hl':''}`} onClick={() => setPage('menu')}>
+                <div className="cat-emoji">{c.emoji}</div>
+                <h3>{c.label}</h3>
+                <p>{c.sub}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="feat-bar">
+        <div className="container">
+          <div className="feat-grid">
+            {[
+              { icon:'⚡', title:'Fast Delivery', desc:'Orders delivered in 30 minutes or less' },
+              { icon:'🔒', title:'Secure Checkout', desc:'Auth-protected with rate limiting' },
+              { icon:'📦', title:'Live Inventory', desc:'Auto-updated stock on confirmed orders' },
+              { icon:'🎁', title:'Loyalty Rewards', desc:'Earn points, apply coupons & seasonal deals' },
+            ].map(f => (
+              <div key={f.title} className="feat-item">
+                <span className="feat-icon">{f.icon}</span>
+                <h4>{f.title}</h4>
+                <p>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <footer className="footer">
+        <div className="footer-brand">🍕 SliceHub</div>
+        <p className="footer-tagline">Pizza, Cold Drinks &amp; Breads — delivered seamlessly.</p>
+        <p className="footer-copy">©️ 2026 SliceHub. All rights reserved.</p>
+      </footer>
+    </>
+  );
+}
+
+function ProductCard({ product, addToCart }) {
+  const [selectedPack, setSelectedPack] = useState(product.packaging[0]);
+  const [qty, setQty] = useState(1);
+
+  function increase() {
+    setQty(q => q + 1);
+  }
+
+  function decrease() {
+    setQty(q => Math.max(1, q - 1));
+  }
+
+  function handlePackagingChange(e) {
+    const chosen = product.packaging.find(p => p.label === e.target.value);
+    setSelectedPack(chosen);
+  }
+
+  function handleAdd() {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      emoji: product.emoji,
+      packaging: selectedPack.label,
+      price: selectedPack.price,
+      qty: qty,
+      cartKey: `${product.id}-${selectedPack.label}`,
+    });
+    setQty(1);
+  }
+
+  return (
+    <div className="prod-card">
+      <div className="prod-emoji-wrap">{product.emoji}</div>
+      <div className="prod-body">
+        <div className="prod-top">
+          <h3>{product.name}</h3>
+          {product.tag && <span className="badge badge-red">{product.tag}</span>}
+        </div>
+        <p className="prod-desc">{product.desc}</p>
+
+        <div className="packaging-row">
+          <select className="packaging-select" value={selectedPack.label} onChange={handlePackagingChange}>
+            {product.packaging.map(pack => (
+              <option key={pack.label} value={pack.label}>
+                {pack.label} - ₹{pack.price}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="prod-foot">
+          <span className="prod-price">₹{selectedPack.price}</span>
+        </div>
+
+        <div className="qty-add-row">
+          <div className="qty-picker">
+            <button className="qty-btn" onClick={decrease}>−</button>
+            <span className="qty-num">{qty}</span>
+            <button className="qty-btn" onClick={increase}>+</button>
+          </div>
+          <button className="add-btn" onClick={handleAdd}>+ Add</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Menu({ addToCart }) {
+  const [cat, setCat] = useState('all');
+  const [q, setQ] = useState('');
+
+  const filtered = PRODUCTS.filter(p =>
+    (cat === 'all' || p.cat === cat) &&
+    (p.name.toLowerCase().includes(q.toLowerCase()) ||
+     p.desc.toLowerCase().includes(q.toLowerCase()))
+  );
+
+  return (
+    <>
+      <div className="page-hdr">
+        <h1>Our Menu</h1>
+        <p>Pizzas, Cold Drinks &amp; Breads — freshly made for you</p>
+      </div>
+      <div className="menu-wrap">
+        <div className="container">
+          <div className="filters">
+            {[['all','All'],['pizza','🍕 Pizzas'],['drinks','🥤 Drinks'],['breads','🍞 Breads']].map(([v,l]) => (
+              <button key={v} className={`f-btn ${cat===v?'active':''}`} onClick={() => setCat(v)}>{l}</button>
+            ))}
+          </div>
+          <div className="search-row">
+            <input
+              className="search-input"
+              placeholder="Search menu items…"
+              value={q}
+              onChange={e => setQ(e.target.value)}
+            />
+          </div>
+          <div className="prod-grid">
+            {filtered.length ? filtered.map(p => (
+              <ProductCard key={p.id} product={p} addToCart={addToCart} />
+            )) : <p className="no-res">No items found. Try a different search.</p>}
+          </div>
+        </div>
+      </div>
+      <footer className="footer">
+        <p className="footer-copy">©️ 2026 SliceHub. All rights reserved.</p>
+      </footer>
+    </>
+  );
+}
+
+function CartPage({ cart, updateQty, removeItem, clearCart, setPage, user, addOrder, showToast }) {
+  const [coupon, setCoupon] = useState('');
+  const [discount, setDiscount] = useState(0);
+  const [couponMsg, setCouponMsg] = useState({ text:'', ok:false });
+
+  const sub = cart.reduce((s,i) => s + i.price * i.qty, 0);
+  const delivery = sub > 0 ? 40 : 0;
+  const grand = Math.max(0, sub + delivery - discount);
+
+  function applyCoupon() {
+    const code = coupon.trim().toUpperCase();
+    if (COUPONS[code]) {
+      setDiscount(COUPONS[code]);
+      setCouponMsg({ text:`✓ Coupon applied! You save ₹${COUPONS[code]}`, ok:true });
+    } else {
+      setDiscount(0);
+      setCouponMsg({ text:'Invalid coupon code.', ok:false });
+    }
+  }
+
+  function placeOrder() {
+    if (!cart.length) {
+      showToast('Your cart is empty!', 'error');
+      return;
+    }
+    if (!user) {
+      showToast('Please login to place order!', 'error');
+      setTimeout(() => setPage('login'), 1200);
+      return;
+    }
+
+    addOrder({
+      id: 'ORD' + Date.now(),
+      items: [...cart],
+      total: grand,
+      status: 'Confirmed',
+      date: new Date().toLocaleString(),
+    });
+
+    clearCart();
+    setDiscount(0);
+    setCoupon('');
+    setCouponMsg({ text:'', ok:false });
+    showToast('Order placed successfully! 🎉', 'success');
+    setTimeout(() => setPage('orders'), 1400);
+  }
+
+  return (
+    <>
+      <div className="page-hdr"><h1>Your Cart 🛒</h1><p>Review and confirm your order</p></div>
+      <div className="cart-wrap">
+        <div className="container">
+          <div className="cart-layout">
+            <div>
+              {cart.length ? cart.map(item => (
+                <div key={item.cartKey} className="cart-item">
+                  <div className="ci-em">{item.emoji}</div>
+                  <div className="ci-info">
+                    <h4>{item.name}</h4>
+                    <p>{item.packaging} • ₹{item.price} each</p>
+                  </div>
+                  <div className="qty-picker">
+                    <button className="qty-btn" onClick={() => updateQty(item.cartKey, item.qty - 1)}>−</button>
+                    <span className="qty-num">{item.qty}</span>
+                    <button className="qty-btn" onClick={() => updateQty(item.cartKey, item.qty + 1)}>+</button>
+                  </div>
+                  <div className="ci-total">₹{item.price * item.qty}</div>
+                  <button className="ci-rm" onClick={() => removeItem(item.cartKey)}>✕</button>
+                </div>
+              )) : (
+                <div className="empty-cart">
+                  <div className="empty-icon">🛒</div>
+                  <h3>Your cart is empty</h3>
+                  <p>Add some delicious items from our menu!</p>
+                  <button className="btn-hero-primary" onClick={() => setPage('menu')}>Browse Menu</button>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <div className="sum-card">
+                <h3>Order Summary</h3>
+                <div className="sum-row"><span>Subtotal</span><span>₹{sub}</span></div>
+                <div className="sum-row"><span>Delivery</span><span>₹{delivery}</span></div>
+                {discount > 0 && (
+                  <div className="sum-row">
+                    <span>Discount</span>
+                    <span style={{ color:'var(--success)' }}>-₹{discount}</span>
+                  </div>
+                )}
+                <hr className="sum-divider"/>
+                <div className="sum-row sum-total"><span>Total</span><span>₹{grand}</span></div>
+
+                <div className="coupon-wrap">
+                  <p className="coupon-label">Apply Coupon</p>
+                  <div className="coupon-row">
+                    <input
+                      className="coupon-input"
+                      placeholder="SAVE50 / WELCOME20 / FEAST100"
+                      value={coupon}
+                      onChange={e => setCoupon(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && applyCoupon()}
+                    />
+                    <button className="coupon-btn" onClick={applyCoupon}>Apply</button>
+                  </div>
+                  {couponMsg.text && (
+                    <p className="coupon-msg" style={{ color: couponMsg.ok ? 'var(--success)' : 'var(--red)' }}>
+                      {couponMsg.text}
+                    </p>
+                  )}
+                </div>
+
+                <button className="checkout-btn" onClick={placeOrder}>Place Order →</button>
+                <button className="continue-link" onClick={() => setPage('menu')}>← Continue Shopping</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer className="footer"><p className="footer-copy">©️ 2026 SliceHub. All rights reserved.</p></footer>
+    </>
+  );
+}
+
+function Orders({ orders, addToCart, setPage, showToast }) {
+  function reorder(items) {
+    items.forEach(i => addToCart({
+      id:i.id,
+      name:i.name,
+      price:i.price,
+      emoji:i.emoji,
+      qty:i.qty,
+      packaging:i.packaging,
+      cartKey:`${i.id}-${i.packaging}`,
+    }));
+    showToast('Items added to cart! 🛒', 'success');
+    setTimeout(() => setPage('cart'), 1200);
+  }
+
+  return (
+    <>
+      <div className="page-hdr"><h1>My Orders 📦</h1><p>Track and reorder your previous orders</p></div>
+      <div className="orders-wrap">
+        <div className="container">
+          {orders.length ? orders.map(o => (
+            <div key={o.id} className="order-card">
+              <div className="order-hdr">
+                <div>
+                  <span className="order-id">{o.id}</span>
+                  <span className="badge badge-green" style={{ marginLeft:'10px' }}>{o.status}</span>
+                </div>
+                <span className="order-date">{o.date}</span>
+              </div>
+              <div className="order-items">
+                {o.items.map(i => (
+                  <div key={i.cartKey + o.id} className="order-item-row">
+                    <span>{i.emoji} {i.name} ({i.packaging})</span>
+                    <span>x{i.qty}</span>
+                    <span>₹{i.price * i.qty}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="order-foot">
+                <div className="order-total">Total: <strong>₹{o.total}</strong></div>
+                <button className="reorder-btn" onClick={() => reorder(o.items)}>🔁 Reorder</button>
+              </div>
+            </div>
+          )) : (
+            <div className="empty-orders">
+              <div className="empty-icon">📦</div>
+              <h3>No orders yet</h3>
+              <p>Place your first order from our menu!</p>
+              <button className="btn-hero-primary" onClick={() => setPage('menu')}>Order Now</button>
+            </div>
+          )}
+        </div>
+      </div>
+      <footer className="footer"><p className="footer-copy">©️ 2026 SliceHub. All rights reserved.</p></footer>
+    </>
+  );
+}
+
+function Login({ setUser, setPage, showToast }) {
+  const [mode, setMode] = useState('login');
+  const [form, setForm] = useState({ name:'', email:'', password:'', address:'' });
+
+  function upd(k, v) {
+    setForm(f => ({ ...f, [k]: v }));
+  }
+
+  function submit() {
+    if (!form.email || !form.password) {
+      showToast('Please fill all required fields', 'error');
+      return;
+    }
+    if (mode === 'signup' && !form.name) {
+      showToast('Please enter your name', 'error');
+      return;
+    }
+    const name = form.name || form.email.split('@')[0];
+    setUser({ name, email: form.email, address: form.address });
+    showToast(mode === 'login' ? `Welcome back, ${name}! 🎉` : `Account created! Welcome ${name} 🎉`, 'success');
+    setTimeout(() => setPage('home'), 1100);
+  }
+
+  return (
+    <div className="auth-wrap">
+      <div className="auth-card">
+        <div className="auth-logo">🍕</div>
+        <h2>{mode === 'login' ? 'Welcome back' : 'Join SliceHub'}</h2>
+        <p className="auth-sub">{mode === 'login' ? 'Login to your account' : 'Create a free account'}</p>
+
+        {mode === 'signup' && (
+          <div className="form-group">
+            <label>Full Name</label>
+            <input placeholder="Your full name" value={form.name} onChange={e => upd('name', e.target.value)} />
+          </div>
+        )}
+
+        <div className="form-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="you@example.com" value={form.email} onChange={e => upd('email', e.target.value)} />
+        </div>
+
+        <div className="form-group">
+          <label>Password</label>
+          <input
+            type="password"
+            placeholder="Enter password"
+            value={form.password}
+            onChange={e => upd('password', e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && submit()}
+          />
+        </div>
+
+        {mode === 'signup' && (
+          <div className="form-group">
+            <label>Delivery Address</label>
+            <input placeholder="Your delivery address" value={form.address} onChange={e => upd('address', e.target.value)} />
+          </div>
+        )}
+
+        <button className="auth-submit" onClick={submit}>
+          {mode === 'login' ? 'Login →' : 'Create Account →'}
+        </button>
+
+        <p className="auth-switch">
+          {mode === 'login'
+            ? <>Don't have an account? <button className="auth-toggle" onClick={() => setMode('signup')}>Sign Up</button></>
+            : <>Already have an account? <button className="auth-toggle" onClick={() => setMode('login')}>Login</button></>
+          }
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [page, setPage] = useState('home');
+  const [cart, setCart] = useState([]);
+  const [orders, setOrders] = useState(STATIC_ORDERS);
+  const [user, setUser] = useState(null);
+  const [toasts, setToasts] = useState([]);
+
+  function showToast(msg, type='') {
+    const id = Date.now() + Math.random();
+    setToasts(t => [...t, { id, msg, type }]);
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3200);
+  }
+
+  function addToCart(item) {
+    setCart(c => {
+      const ex = c.find(i => i.cartKey === item.cartKey);
+      return ex
+        ? c.map(i => i.cartKey === item.cartKey ? { ...i, qty: i.qty + item.qty } : i)
+        : [...c, { ...item }];
+    });
+    showToast(`${item.name} (${item.packaging}) added to cart! 🛒`, 'success');
+  }
+
+  function updateQty(cartKey, qty) {
+    if (qty <= 0) {
+      setCart(c => c.filter(i => i.cartKey !== cartKey));
+      return;
+    }
+    setCart(c => c.map(i => i.cartKey === cartKey ? { ...i, qty } : i));
+  }
+
+  function removeItem(cartKey) {
+    setCart(c => c.filter(i => i.cartKey !== cartKey));
+  }
+
+  function clearCart() {
+    setCart([]);
+  }
+
+  function addOrder(order) {
+    setOrders(os => [order, ...os]);
+  }
+
+  function logout() {
+    setUser(null);
+    showToast('Logged out successfully');
+  }
+
+  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
+  const sharedProps = { setPage, showToast };
+
+  return (
+    <>
+      <Navbar page={page} setPage={setPage} cartCount={cartCount} user={user} logout={logout} />
+
+      {page === 'home' && <Home {...sharedProps} />}
+      {page === 'menu' && <Menu addToCart={addToCart} {...sharedProps} />}
+      {page === 'cart' && (
+        <CartPage
+          cart={cart}
+          updateQty={updateQty}
+          removeItem={removeItem}
+          clearCart={clearCart}
+          user={user}
+          addOrder={addOrder}
+          {...sharedProps}
+        />
+      )}
+      {page === 'orders' && (
+        <Orders orders={orders} addToCart={addToCart} {...sharedProps} />
+      )}
+      {page === 'login' && <Login setUser={setUser} {...sharedProps} />}
+
+      <ToastContainer toasts={toasts} />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
