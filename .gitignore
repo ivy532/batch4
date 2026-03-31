@@ -1,0 +1,32 @@
+# Java
+/target/
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+*.iml
+/.idea/
+/.classpath
+/.project
+/.settings/
+
+# Maven
+dependency-reduced-pom.xml
+release.properties
+
+# IDE
+.vscode/
+
+# Node
+/frontend/node_modules/
+/frontend/build/
+/frontend/.cache/
+
+# H2
+/backend/data/
+
+# OS
+.DS_Store
+Thumbs.db
